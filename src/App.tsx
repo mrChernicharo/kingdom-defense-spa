@@ -4,6 +4,7 @@ import "./App.css";
 
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
+import { devtools } from "zustand/middleware";
 
 type BearState = {
   bears: number;
@@ -14,28 +15,40 @@ type BearState = {
 };
 
 const useBear = create<BearState>()(
-  immer((set) => ({
-    bears: 0,
-    deep: { nested: { name: "Default" } },
-    increasePopulation: () => set((state) => ({ bears: state.bears + 1 })),
-    removeAllBears: () => set({ bears: 0 }),
+  devtools(
+    immer((set) => ({
+      bears: 0,
+      deep: { nested: { name: "Default" } },
+      increasePopulation: () =>
+        set(
+          (state) => ({ bears: state.bears + 1 }),
+          undefined,
+          "bears/increasePopulation"
+        ),
+      removeAllBears: () =>
+        set({ bears: 0 }, undefined, "bears/removeAllBears"),
 
-    // **** WITHOUT IMMER ****
-    // setDeepNestedName: (newName: string) =>
-    //   set((state) => ({
-    //     ...state,
-    //     deep: {
-    //       ...state.deep,
-    //       nested: { ...state.deep.nested, name: newName },
-    //     },
-    //   })),
+      // **** WITHOUT IMMER ****
+      // setDeepNestedName: (newName: string) =>
+      //   set((state) => ({
+      //     ...state,
+      //     deep: {
+      //       ...state.deep,
+      //       nested: { ...state.deep.nested, name: newName },
+      //     },
+      //   })),
 
-    // **** WITH IMMER ****
-    setDeepNestedName: (newName: string) =>
-      set((state) => {
-        state.deep.nested.name = newName;
-      }),
-  }))
+      // **** WITH IMMER ****
+      setDeepNestedName: (newName: string) =>
+        set(
+          (state) => {
+            state.deep.nested.name = newName;
+          },
+          undefined,
+          "bears/setDeepNestedName"
+        ),
+    }))
+  )
 );
 
 function App() {
