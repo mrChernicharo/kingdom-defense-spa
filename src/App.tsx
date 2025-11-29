@@ -3,6 +3,7 @@ import viteLogo from "/vite.svg";
 import "./App.css";
 
 import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 
 type BearState = {
   bears: number;
@@ -12,18 +13,30 @@ type BearState = {
   setDeepNestedName: (newName: string) => void;
 };
 
-const useBear = create<BearState>()((set) => ({
-  bears: 0,
-  deep: { nested: { name: "Default" } },
-  increasePopulation: () => set((state) => ({ bears: state.bears + 1 })),
-  removeAllBears: () => set({ bears: 0 }),
-  setDeepNestedName: (newName: string) =>
-    set((state) => ({
-      ...state,
-      deep: { ...state.deep, nested: { ...state.deep.nested, name: newName } },
-    })),
-  // updateBears: (newBears) => set({ bears: newBears }),
-}));
+const useBear = create<BearState>()(
+  immer((set) => ({
+    bears: 0,
+    deep: { nested: { name: "Default" } },
+    increasePopulation: () => set((state) => ({ bears: state.bears + 1 })),
+    removeAllBears: () => set({ bears: 0 }),
+
+    // **** WITHOUT IMMER ****
+    // setDeepNestedName: (newName: string) =>
+    //   set((state) => ({
+    //     ...state,
+    //     deep: {
+    //       ...state.deep,
+    //       nested: { ...state.deep.nested, name: newName },
+    //     },
+    //   })),
+
+    // **** WITH IMMER ****
+    setDeepNestedName: (newName: string) =>
+      set((state) => {
+        state.deep.nested.name = newName;
+      }),
+  }))
+);
 
 function App() {
   const bears = useBear((state) => state.bears);
