@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { persist } from "zustand/middleware";
 import "./App.css";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
@@ -49,25 +50,28 @@ type BearState = {
 
 const useStore = create<BearState>()(
   customLogger(
-    immer((set) => ({
-      bears: 0,
-      deep: { nested: { name: "Default" } },
-      increasePopulation: () => {
-        appLog("store/increasePopulation", "lightgreen");
-        set((state: BearState) => ({ bears: state.bears + 1 }));
-      },
-      removeAllBears: () => {
-        appLog("store/removeAllBears", "lightgreen");
-        set({ bears: 0 });
-      },
-      // **** WITH IMMER ****
-      setDeepNestedName: (newName: string) => {
-        appLog("store/setDeepNestedName", "lightgreen", { newName });
-        set((state: BearState) => {
-          state.deep.nested.name = newName;
-        });
-      },
-    }))
+    persist(
+      immer((set) => ({
+        bears: 0,
+        deep: { nested: { name: "Default" } },
+        increasePopulation: () => {
+          appLog("store/increasePopulation", "lightgreen");
+          set((state: BearState) => ({ bears: state.bears + 1 }));
+        },
+        removeAllBears: () => {
+          appLog("store/removeAllBears", "lightgreen");
+          set({ bears: 0 });
+        },
+        // **** WITH IMMER ****
+        setDeepNestedName: (newName: string) => {
+          appLog("store/setDeepNestedName", "lightgreen", { newName });
+          set((state: BearState) => {
+            state.deep.nested.name = newName;
+          });
+        },
+      })),
+      { name: "app-store" }
+    )
   )
 );
 
