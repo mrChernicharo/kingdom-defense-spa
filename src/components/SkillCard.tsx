@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
-import type { PlayerSkillCard } from "./types";
-import { getSkillLevel, getCardsToNextLevel } from "./helperFns";
+import type { PlayerSkillCard } from "../types";
+import { getSkillLevel, getCardsToNextLevel } from "../helperFns";
 import "./SkillCard.css";
 
 interface SkillCardProps {
@@ -14,22 +14,11 @@ export default function SkillCard({ skillCard }: SkillCardProps) {
 
     const currentLevel = getSkillLevel(quantity);
     const cardsToNextLevel = getCardsToNextLevel(quantity);
-    const cardsNeededForNextLevel = currentLevel + 1; // Cards needed to go from current level to next
-    const cardsCollectedForNextLevel = cardsNeededForNextLevel - cardsToNextLevel;
-    const progressPercentage = (cardsCollectedForNextLevel / cardsNeededForNextLevel) * 100;
-
-    useEffect(() => {
-        if (prevQuantityRef.current !== quantity && quantityRef.current) {
-            quantityRef.current.classList.remove("skill-card__modifier-quantity--animate");
-            setTimeout(() => {
-                quantityRef.current?.classList.add("skill-card__modifier-quantity--animate");
-            }, 10);
-        }
-        prevQuantityRef.current = quantity;
-    }, [quantity]);
+    const cardsNeededForThisLevel = currentLevel + 1;
+    const cardsCollectedForThisLevel = cardsNeededForThisLevel - cardsToNextLevel;
+    const progressPercentage = (cardsCollectedForThisLevel / cardsNeededForThisLevel) * 100;
 
     const formatModifier = useMemo(() => {
-        // Calculate total modifier with level bonus
         const totalAmount = modifier.isPercent
             ? modifier.amount + modifier.levelBonus * currentLevel
             : modifier.amount + modifier.levelBonus * currentLevel;
@@ -47,15 +36,17 @@ export default function SkillCard({ skillCard }: SkillCardProps) {
         }
 
         return `${value} ${statName}`;
-    }, [
-        modifier.amount,
-        modifier.isPercent,
-        modifier.stat,
-        modifier.target,
-        modifier.type,
-        modifier.levelBonus,
-        currentLevel,
-    ]);
+    }, [modifier, currentLevel]);
+
+    useEffect(() => {
+        if (prevQuantityRef.current !== quantity && quantityRef.current) {
+            quantityRef.current.classList.remove("skill-card__modifier-quantity--animate");
+            setTimeout(() => {
+                quantityRef.current?.classList.add("skill-card__modifier-quantity--animate");
+            }, 10);
+        }
+        prevQuantityRef.current = quantity;
+    }, [quantity]);
 
     return (
         <div className={`skill-card skill-card--${rarity.toLowerCase()}`}>
@@ -78,7 +69,7 @@ export default function SkillCard({ skillCard }: SkillCardProps) {
                     <div className="skill-card__progress-fill" style={{ width: `${progressPercentage}%` }} />
                 </div>
                 <span className="skill-card__progress-text">
-                    {cardsCollectedForNextLevel}/{cardsNeededForNextLevel}
+                    {cardsCollectedForThisLevel}/{cardsNeededForThisLevel}
                 </span>
             </div>
         </div>
