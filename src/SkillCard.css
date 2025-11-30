@@ -22,6 +22,22 @@
     margin-bottom: 0.5rem;
 }
 
+.skill-card__header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.skill-card__level {
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    background-color: rgba(255, 255, 255, 0.15);
+    min-width: 36px;
+    text-align: center;
+}
+
 .skill-card__name {
     margin: 0;
     font-size: 1rem;
@@ -120,4 +136,57 @@
     50% {
         box-shadow: 0 0 10px rgba(255, 152, 0, 0.8);
     }
+}
+
+.skill-card__modifier-quantity {
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+    display: inline-block;
+    transform-origin: center center;
+    width: fit-content;
+}
+
+.skill-card__modifier-quantity--animate {
+    animation: scaleUp 0.4s ease-out forwards;
+}
+
+@keyframes scaleUp {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.75);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.skill-card__progress {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.skill-card__progress-bar {
+    flex: 1;
+    height: 6px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.skill-card__progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4caf50, #8bc34a);
+    border-radius: 3px;
+    transition: width 0.3s ease-out;
+}
+
+.skill-card__progress-text {
+    font-size: 0.7rem;
+    color: #aaa;
+    white-space: nowrap;
 }

@@ -6,13 +6,7 @@ import SkillCard from "./SkillCard";
 import { ALL_SKILL_CARDS } from "./cards";
 
 // Assign weights based on rarity (higher weight = more common)
-const rarityWeights = {
-    COMMON: 50,
-    FINE: 25,
-    RARE: 15,
-    EPIC: 7,
-    LEGENDARY: 3,
-};
+const rarityWeights = { COMMON: 50, FINE: 25, RARE: 15, EPIC: 7, LEGENDARY: 3 };
 
 // Create weighted array
 const weightedCards: typeof ALL_SKILL_CARDS = [];
@@ -53,7 +47,7 @@ function App() {
             <button onClick={incrementCurrentLevel}>increase</button>
             <button onClick={resetCurrentLevel}>reset</button>
 
-            <ul style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }}>
+            <ul style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }}>
                 {skillCardArr.map((skillCard) => (
                     <SkillCard key={skillCard.name} skillCard={skillCard} />
                 ))}
