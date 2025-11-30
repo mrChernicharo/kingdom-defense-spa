@@ -1,107 +1,68 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { persist } from "zustand/middleware";
 import "./App.css";
 import reactLogo from "./assets/react.svg";
+import { useStore } from "./store";
 import viteLogo from "/vite.svg";
-import { create } from "zustand";
-import type { StateCreator, StoreMutatorIdentifier } from "zustand";
-import { immer } from "zustand/middleware/immer";
+import SkillCard from "./SkillCard";
+import { ALL_SKILL_CARDS } from "./cards";
 
-function appLog(log: string, color: string, extra?: any) {
-  console.log(`%c${log}`, `color: ${color}`, extra ? extra : "");
-}
-
-// Custom logger middleware
-type CustomLogger = <
-  T,
-  Mps extends [StoreMutatorIdentifier, unknown][] = [],
-  Mcs extends [StoreMutatorIdentifier, unknown][] = []
->(
-  config: StateCreator<T, Mps, Mcs>
-) => StateCreator<T, Mps, Mcs>;
-
-const customLogger: CustomLogger = (config) => (set, get, api) => {
-  // Helper to filter out functions from state
-  const getStateWithoutFunctions = () => {
-    const state = get() as Record<string, unknown>;
-    return Object.fromEntries(
-      Object.entries(state).filter(([, value]) => typeof value !== "function")
-    );
-  };
-
-  return config(
-    ((...args: any[]) => {
-      appLog("  [Before]", "lightblue", getStateWithoutFunctions());
-      (set as any)(...args);
-      appLog("  [After]", "lightblue", getStateWithoutFunctions());
-    }) as any,
-    get,
-    api
-  );
+// Assign weights based on rarity (higher weight = more common)
+const rarityWeights = {
+    COMMON: 50,
+    FINE: 25,
+    RARE: 15,
+    EPIC: 7,
+    LEGENDARY: 3,
 };
 
-type BearState = {
-  bears: number;
-  deep: { nested: { name: string } };
-  increasePopulation: () => void;
-  removeAllBears: () => void;
-  setDeepNestedName: (newName: string) => void;
-};
-
-const useStore = create<BearState>()(
-  customLogger(
-    persist(
-      immer((set) => ({
-        bears: 0,
-        deep: { nested: { name: "Default" } },
-        increasePopulation: () => {
-          appLog("store/increasePopulation", "lightgreen");
-          set((state: BearState) => ({ bears: state.bears + 1 }));
-        },
-        removeAllBears: () => {
-          appLog("store/removeAllBears", "lightgreen");
-          set({ bears: 0 });
-        },
-        // **** WITH IMMER ****
-        setDeepNestedName: (newName: string) => {
-          appLog("store/setDeepNestedName", "lightgreen", { newName });
-          set((state: BearState) => {
-            state.deep.nested.name = newName;
-          });
-        },
-      })),
-      { name: "app-store" }
-    )
-  )
-);
+// Create weighted array
+const weightedCards: typeof ALL_SKILL_CARDS = [];
+ALL_SKILL_CARDS.forEach((card) => {
+    const weight = rarityWeights[card.rarity];
+    for (let i = 0; i < weight; i++) {
+        weightedCards.push(card);
+    }
+});
 
 function App() {
-  const bears = useStore((state) => state.bears);
-  const name = useStore((state) => state.deep.nested.name);
-  const increasePopulation = useStore((state) => state.increasePopulation);
-  const removeAllBears = useStore((state) => state.removeAllBears);
-  const setDeepNestedName = useStore((state) => state.setDeepNestedName);
+    const currentLevel = useStore((state) => state.currentLevel);
+    const skillCards = useStore((state) => state.player.skillCards);
+    const incrementCurrentLevel = useStore((state) => state.incrementCurrentLevel);
+    const resetCurrentLevel = useStore((state) => state.resetCurrentLevel);
+    const addSkillCard = useStore((state) => state.addSkillCard);
+    const resetSkillCards = useStore((state) => state.resetSkillCards);
 
-  return (
-    <div>
-      <img src={reactLogo} />
-      <img src={viteLogo} />
+    const rarityOrder = { COMMON: 0, FINE: 1, RARE: 2, EPIC: 3, LEGENDARY: 4 };
+    const skillCardArr = Object.values(skillCards).sort((a, b) => rarityOrder[a.rarity] - rarityOrder[b.rarity]);
 
-      <output>{name}</output>
-      <br />
-      <input
-        type="text"
-        value={name}
-        onChange={(ev) => setDeepNestedName(ev.target.value)}
-      />
-      <br />
-      <output>{bears}</output>
-      <br />
+    const pickCard = () => {
+        // Pick random card from weighted array
+        const randIdx = Math.floor(Math.random() * weightedCards.length);
+        const pickedCard = weightedCards[randIdx];
+        // console.log("pickedCard ===", { weightedCards, randIdx, pickedCard });
+        addSkillCard(pickedCard);
+    };
 
-      <button onClick={increasePopulation}>increase</button>
-      <button onClick={removeAllBears}>reset</button>
-    </div>
-  );
+    return (
+        <div>
+            <img src={reactLogo} />
+            <img src={viteLogo} />
+            <br />
+
+            <output>currentLevel {currentLevel}</output>
+            <br />
+            <button onClick={incrementCurrentLevel}>increase</button>
+            <button onClick={resetCurrentLevel}>reset</button>
+
+            <ul style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }}>
+                {skillCardArr.map((skillCard) => (
+                    <SkillCard key={skillCard.name} skillCard={skillCard} />
+                ))}
+            </ul>
+
+            <button onClick={pickCard}>Pick Card</button>
+            <button onClick={resetSkillCards}>Reset Cards</button>
+        </div>
+    );
 }
 
 export default App;
