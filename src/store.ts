@@ -6,13 +6,17 @@ import type { PlayerSkillCard, SkillCard } from "./types";
 
 export type AppState = {
     currentLevel: number;
-    player: {
-        skillCards: Record<string, PlayerSkillCard>;
-    };
+    skillCards: Record<string, PlayerSkillCard>;
+    gold: number;
+    gems: number;
+    xp: number;
     incrementCurrentLevel: () => void;
     resetCurrentLevel: () => void;
     addSkillCard: (skillCard: SkillCard) => void;
     resetSkillCards: () => void;
+    addGold: (amount: number) => void;
+    addGems: (amount: number) => void;
+    addXp: (amount: number) => void;
 
     // deep: { nested: { name: string } };
     // setDeepNestedName: (newName: string) => void;
@@ -23,9 +27,10 @@ export const useStore = create<AppState>()(
         persist(
             immer((set) => ({
                 currentLevel: 0,
-                player: {
-                    skillCards: {},
-                },
+                gold: 0,
+                gems: 0,
+                xp: 0,
+                skillCards: {},
                 incrementCurrentLevel: () => {
                     appLog("store/incrementCurrentLevel", "lightgreen");
                     set((state) => {
@@ -39,16 +44,34 @@ export const useStore = create<AppState>()(
                 addSkillCard: (skillCard) => {
                     appLog("store/addSkillCard", "lightgreen", { skillCard });
                     set((state) => {
-                        if (!state.player.skillCards[skillCard.name]) {
-                            state.player.skillCards[skillCard.name] = { ...skillCard, quantity: 0 };
+                        if (!state.skillCards[skillCard.name]) {
+                            state.skillCards[skillCard.name] = { ...skillCard, quantity: 0 };
                         }
-                        state.player.skillCards[skillCard.name].quantity++;
+                        state.skillCards[skillCard.name].quantity++;
                     });
                 },
                 resetSkillCards: () => {
                     appLog("store/resetSkillCards", "lightgreen");
                     set((state) => {
-                        state.player.skillCards = {};
+                        state.skillCards = {};
+                    });
+                },
+                addGold: (amount) => {
+                    appLog("store/addGold", "lightgreen", { amount });
+                    set((state) => {
+                        state.gold += amount;
+                    });
+                },
+                addGems: (amount) => {
+                    appLog("store/addGems", "lightgreen", { amount });
+                    set((state) => {
+                        state.gems += amount;
+                    });
+                },
+                addXp: (amount) => {
+                    appLog("store/addXp", "lightgreen", { amount });
+                    set((state) => {
+                        state.xp += amount;
                     });
                 },
             })),

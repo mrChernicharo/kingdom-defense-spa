@@ -3,36 +3,8 @@ import { useStore } from "../store";
 import { getSkillLevel } from "../helperFns";
 import "./StatsSummary.css";
 
-interface StatSectionProps {
-    title: string;
-    statObj: Record<string, { value: number; isPercent: boolean }>;
-}
-
-function StatSection({ title, statObj }: StatSectionProps) {
-    const entries = Object.entries(statObj);
-    if (entries.length === 0) return null;
-
-    return (
-        <div className="stat-section">
-            <h3>{title}</h3>
-            <ul className="stat-list">
-                {entries.map(([stat, { value, isPercent }]) => (
-                    <li key={stat} className="stat-item">
-                        <span className="stat-name">{stat}</span>
-                        <span className="stat-value">
-                            {value > 0 ? "+" : ""}
-                            {value}
-                            {isPercent ? "%" : ""}
-                        </span>
-                    </li>
-                ))}
-            </ul>
-        </div>
-    );
-}
-
 export default function StatsSummary() {
-    const skillCards = useStore((state) => state.player.skillCards);
+    const skillCards = useStore((state) => state.skillCards);
 
     // Aggregate stats by category
     const stats = {
@@ -90,6 +62,34 @@ export default function StatsSummary() {
             {Object.values(stats).every((s) => Object.keys(s).length === 0) && (
                 <p className="no-stats">No skill cards collected yet!</p>
             )}
+        </div>
+    );
+}
+
+interface StatSectionProps {
+    title: string;
+    statObj: Record<string, { value: number; isPercent: boolean }>;
+}
+
+function StatSection({ title, statObj }: StatSectionProps) {
+    const entries = Object.entries(statObj);
+    if (entries.length === 0) return null;
+
+    return (
+        <div className="stat-section">
+            <h3>{title}</h3>
+            <ul className="stat-list">
+                {entries.map(([stat, { value, isPercent }]) => (
+                    <li key={stat} className="stat-item">
+                        <span className="stat-name">{stat}</span>
+                        <span className="stat-value">
+                            {value > 0 ? "+" : ""}
+                            {value}
+                            {isPercent ? "%" : ""}
+                        </span>
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 }
